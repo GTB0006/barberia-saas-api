@@ -7,6 +7,9 @@ from datetime import datetime, time
 import pyodbc
 import os
 
+# 🔔 WhatsApp
+from whatsapp_sender import enviar_mensaje
+
 # ======================================================
 # APP
 # ======================================================
@@ -26,7 +29,7 @@ HORA_APERTURA = time(9, 0)
 HORA_CIERRE = time(22, 0)
 
 # ======================================================
-# FRONTEND (ESTO ES LO NUEVO)
+# FRONTEND
 # ======================================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -96,7 +99,7 @@ def listar_profesionales():
         conn.close()
 
 # ======================================================
-# RESERVAS
+# RESERVAS + WHATSAPP
 # ======================================================
 @app.post("/reservas")
 def crear_reserva(cliente_id: int, profesional_id: int, fecha: str, hora: str):
@@ -125,6 +128,27 @@ def crear_reserva(cliente_id: int, profesional_id: int, fecha: str, hora: str):
                 status_code=400,
                 detail="El profesional ya tiene una reserva en ese horario"
             )
+
+        # 📲 DATOS PARA WHATSAPP
+        cursor.execute("""
+            SELECT C.Nombre, C.Telefono, P.Nombre
+            FROM Clientes C
+            JOIN Profesionales P ON P.ProfesionalId = ?
+            WHERE C.ClienteId = ?
+        """, (profesional_id, cliente_id))
+
+        cliente, telefono, profesional = cursor.fetchone()
+
+        mensaje = (
+            f"Hola {cliente} 👋\n\n"
+            f"✅ Tu reserva fue confirmada:\n"
+            f"💈 Profesional: {profesional}\n"
+            f"📅 Fecha: {fecha}\n"
+            f"⏰ Hora: {hora}\n\n"
+            f"Gracias por preferirnos 🙌"
+        )
+
+        enviar_mensaje(telefono, mensaje)
 
         return {"mensaje": "Reserva creada correctamente"}
 
@@ -169,7 +193,7 @@ def listar_reservas():
         conn.close()
 
 # ======================================================
-# DISPONIBILIDAD
+# DISPONIBILIDAD  ✅ (NO SE QUITA)
 # ======================================================
 @app.get("/disponibilidad")
 def disponibilidad(profesional_id: int, fecha: str):
