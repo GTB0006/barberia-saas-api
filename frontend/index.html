@@ -121,21 +121,30 @@ function mostrarImagenProfesional() {
 
 async function cargarProfesionales() {
     try {
-        // Ajustamos la ruta para que coincida con tu API (usamos barberia_id 1 por defecto)
+        console.log("Intentando cargar barberos desde:", `${API}/barberos/1`);
         const res = await fetch(`${API}/barberos/1`); 
+        
+        if (!res.ok) throw new Error("Fallo al conectar con el servidor");
+
         const data = await res.json();
         const select = document.getElementById("profesional");
-        select.innerHTML = '<option value="">Selecciona un profesional</option>';
 
+        if (data.length === 0) {
+            select.innerHTML = '<option value="">No se encontraron barberos en la BD</option>';
+            return;
+        }
+
+        select.innerHTML = '<option value="">Selecciona un profesional</option>';
         data.forEach(p => {
-            profesionales[p.id] = p;
+            profesionales[p.id] = p; // Usamos p.id porque así viene del main.py
             const opt = document.createElement("option");
             opt.value = p.id;
             opt.textContent = p.nombre;
             select.appendChild(opt);
         });
     } catch (e) {
-        console.error("Error cargando profesionales:", e);
+        console.error("Error:", e);
+        document.getElementById("profesional").innerHTML = '<option value="">Error al cargar</option>';
     }
 }
 
