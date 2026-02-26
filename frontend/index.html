@@ -12,7 +12,6 @@
 }
 
 body {
-    /* El fondo se aplica vía JavaScript al final */
     background-color: #111827; 
     margin: 0;
     min-height: 100vh;
@@ -63,10 +62,10 @@ button:hover { background: #374151; }
     <label>Nombre Completo</label>
     <input id="nombre" placeholder="Ej: Juan Pérez">
 
-    <label>Teléfono</label>
+    <label>Teléfono (Opcional)</label>
     <input id="telefono" placeholder="Ej: 3001234567">
 
-    <label>Cédula</label>
+    <label>Cédula (Opcional)</label>
     <input id="cedula" placeholder="Documento de identidad">
 
     <label>Correo Electrónico</label>
@@ -96,12 +95,11 @@ button:hover { background: #374151; }
 </div>
 
 <script>
-// CONFIGURACIÓN DINÁMICA
 const API = window.location.origin;
 const URL_FONDO = "https://ntfqlkuhzoqvjtkfyvkr.supabase.co/storage/v1/object/public/barberos/fondo.jpeg";
 let profesionales = {};
 
-// Aplicar fondo dinámico
+// Fondo
 document.body.style.background = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('${URL_FONDO}') no-repeat center center fixed`;
 document.body.style.backgroundSize = "cover";
 
@@ -111,7 +109,6 @@ document.getElementById("fecha").min = new Date().toISOString().split("T")[0];
 function mostrarImagenProfesional() {
     const id = document.getElementById("profesional").value;
     const preview = document.getElementById("preview");
-
     if (profesionales[id] && profesionales[id].foto_url) {
         preview.innerHTML = `<img src="${profesionales[id].foto_url}" alt="Barbero">`;
     } else {
@@ -121,86 +118,87 @@ function mostrarImagenProfesional() {
 
 async function cargarProfesionales() {
     try {
-        console.log("Intentando cargar barberos desde:", `${API}/barberos/1`);
         const res = await fetch(`${API}/barberos/1`); 
-        
         if (!res.ok) throw new Error("Fallo al conectar con el servidor");
-
         const data = await res.json();
         const select = document.getElementById("profesional");
 
         if (data.length === 0) {
-            select.innerHTML = '<option value="">No se encontraron barberos en la BD</option>';
+            select.innerHTML = '<option value="">No hay barberos disponibles</option>';
             return;
         }
 
         select.innerHTML = '<option value="">Selecciona un profesional</option>';
         data.forEach(p => {
-            profesionales[p.id] = p; // Usamos p.id porque así viene del main.py
+            profesionales[p.id] = p;
             const opt = document.createElement("option");
             opt.value = p.id;
             opt.textContent = p.nombre;
             select.appendChild(opt);
         });
     } catch (e) {
-        console.error("Error:", e);
         document.getElementById("profesional").innerHTML = '<option value="">Error al cargar</option>';
     }
 }
 
 async function reservar() {
-    const nombre = value("nombre");
-    const telefono = value("telefono");
-    const cedula = value("cedula");
-    const correo = value("correo");
-    const profesional_id = value("profesional");
-    const fecha = value("fecha");
-    const hora = value("hora");
+    const nombre = document.getElementById("nombre").value;
+    const correo = document.getElementById("correo").value;
+    const profesional_id = document.getElementById("profesional").value;
+    const fecha = document.getElementById("fecha").value;
+    const hora = document.getElementById("hora").value;
 
     const msg = document.getElementById("mensaje");
+    
+    if (!nombre || !correo || !profesional_id || !fecha || !hora) {
+        msg.className = "msg error";
+        msg.innerText = "Por favor completa los campos obligatorios";
+        return;
+    }
+
     msg.innerHTML = "Procesando...";
     msg.className = "msg";
 
     try {
-        // 1. Crear/Verificar Cliente
-        const clienteRes = await fetch(
-            `${API}/clientes?nombre=${nombre}&telefono=${telefono}&cedula=${cedula}&correo=${correo}`,
-            { method: "POST" }
-        );
-        const clienteData = await clienteRes.json();
-
-        // 2. Crear Reserva
+        // Enviar todo directamente a /reservas según el nuevo main.py
         const params = new URLSearchParams({
             barberia_id: 1,
-            cliente_id: clienteData.cliente_id,
             barbero_id: profesional_id,
-            fecha,
-            hora
+            cliente_nombre: nombre,
+            cliente_email: correo,
+            fecha: fecha,
+            hora: hora
         });
 
         const res = await fetch(`${API}/reservas?${params}`, { method: "POST" });
         const data = await res.json();
 
-        if (!res.ok) throw data;
+        if (!res.ok) throw new Error(data.detail || "Error al reservar");
 
         msg.className = "msg ok";
         msg.innerText = "¡Reserva confirmada! Revisa tu correo.";
+        
+        // Limpiar campos
+        document.getElementById("nombre").value = "";
+        document.getElementById("correo").value = "";
+        
         cargarReservas();
 
     } catch (e) {
         msg.className = "msg error";
-        msg.innerText = e.detail || "Error al crear reserva";
+        msg.innerText = e.message;
     }
 }
 
 async function cargarReservas() {
     try {
-        const res = await fetch(`${API}/reservas/1`); // Consultar reservas de la barbería 1
+        const res = await fetch(`${API}/reservas/1`);
+        if (!res.ok) return;
         const data = await res.json();
         const lista = document.getElementById("lista");
         lista.innerHTML = "";
 
-        data.slice(0, 5).forEach(r => { // Mostrar las últimas 5
+        data.forEach(r => {
             lista.innerHTML += `
                 <div class="reserva">
                     <strong>👤 ${r.cliente}</strong><br>
@@ -210,11 +208,9 @@ async function cargarReservas() {
             `;
         });
     } catch (e) {
-        console.log("Aún no hay reservas");
+        console.log("Error cargando reservas");
     }
 }
-
-const value = id => document.getElementById(id).value;
 
 cargarProfesionales();
 cargarReservas();
