@@ -47,23 +47,7 @@ def index():
     )
 
 # ======================================================
-# HORARIOS Y TEST
-# ======================================================
-
-HORA_APERTURA = time(9, 0)
-HORA_CIERRE = time(22, 0)
-
-@app.get("/test-db")
-def test_db():
-    try:
-        conn = get_connection()
-        conn.close()
-        return {"status": "Conectado correctamente a PostgreSQL"}
-    except Exception as e:
-        return {"error": str(e)}
-
-# ======================================================
-# LISTAR BARBEROS POR BARBERIA
+# LISTAR BARBEROS (CORREGIDO PARA TU BASE DE DATOS)
 # ======================================================
 
 @app.get("/barberos/{barberia_id}")
@@ -71,22 +55,29 @@ def listar_barberos(barberia_id: int):
     conn = get_connection()
     try:
         cursor = conn.cursor()
-        cursor.execute("""
-            SELECT id, nombre, horario_inicio, horario_fin, foto_url
-            FROM barberos
+        # Forzamos los nombres de columnas según tus capturas de pantalla
+        query = """
+            SELECT id, nombre, horario_inicio, horario_fin, foto_url 
+            FROM barberos 
             WHERE barberia_id = %s AND activo = TRUE
-        """, (barberia_id,))
-
-        return [
-            {
+        """
+        cursor.execute(query, (barberia_id,))
+        rows = cursor.fetchall()
+        
+        resultado = []
+        for r in rows:
+            resultado.append({
                 "id": r[0],
                 "nombre": r[1],
                 "horario_inicio": str(r[2]),
                 "horario_fin": str(r[3]),
                 "foto_url": r[4]
-            }
-            for r in cursor.fetchall()
-        ]
+            })
+        return resultado
+    except Exception as e:
+        # Esto nos dirá en los logs de Render qué falló exactamente
+        print(f"ERROR CRÍTICO: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
     finally:
         conn.close()
 
