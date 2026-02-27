@@ -29,11 +29,17 @@ HORA_CIERRE = time(22, 0)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# Servir archivos estáticos
 app.mount("/frontend", StaticFiles(directory=os.path.join(BASE_DIR, "frontend")), name="frontend")
 
 @app.get("/")
 def index():
     return FileResponse(os.path.join(BASE_DIR, "frontend", "index.html"))
+
+# NUEVA RUTA PARA EL ADMIN
+@app.get("/admin")
+def admin_panel():
+    return FileResponse(os.path.join(BASE_DIR, "frontend", "admin.html"))
 
 # ======================================================
 # LISTAR BARBEROS
@@ -50,7 +56,7 @@ def listar_barberos(barberia_id: int):
         conn.close()
 
 # ======================================================
-# CREAR RESERVA
+# CREAR RESERVA (CON BLOQUEO DE 1 HORA)
 # ======================================================
 @app.post("/reservas")
 def crear_reserva(
@@ -68,26 +74,23 @@ def crear_reserva(
     try:
         cursor = conn.cursor()
 
-        # 1. Validaciones
+        # 1. Validaciones de horario general
         hora_obj = datetime.strptime(hora, "%H:%M").time()
         if not (HORA_APERTURA <= hora_obj < HORA_CIERRE):
             raise HTTPException(status_code=400, detail="La barbería está cerrada")
 
-        # 2. Verificar disponibilidad (Rango de 1 hora)
-        # Buscamos si existe alguna cita entre (hora solicitada - 59 min) y (hora solicitada + 59 min)
+        # 2. VALIDACIÓN DE RANGO (No permitir citas en la misma hora)
+        # Usamos OVERLAPS de PostgreSQL para asegurar que no se pisen
         cursor.execute("""
             SELECT id FROM reservas 
             WHERE barberia_id = %s 
             AND barbero_id = %s 
             AND fecha = %s 
-            AND (hora::time, interval '1 hour') OVERLAPS (%s::time, interval '1 hour')
+            AND (hora::time, interval '59 minutes') OVERLAPS (%s::time, interval '59 minutes')
         """, (barberia_id, barbero_id, fecha, hora))
         
         if cursor.fetchone():
-            raise HTTPException(status_code=400, detail="El barbero ya tiene una cita en este rango de tiempo.")
-        
-        if cursor.fetchone():
-            raise HTTPException(status_code=400, detail="Horario no disponible")
+            raise HTTPException(status_code=400, detail="Este barbero ya tiene una cita en un horario cercano (rango de 1 hora ocupado).")
 
         # 3. Guardar en Base de Datos
         cursor.execute("""
@@ -119,7 +122,7 @@ def crear_reserva(
         conn.close()
 
 # ======================================================
-# LISTAR RESERVAS (Actualizado con Teléfono)
+# LISTAR RESERVAS (PARA EL ADMIN)
 # ======================================================
 @app.get("/reservas/{barberia_id}")
 def listar_reservas(barberia_id: int):
@@ -131,7 +134,7 @@ def listar_reservas(barberia_id: int):
             FROM reservas r
             JOIN barberos b ON r.barbero_id = b.id
             WHERE r.barberia_id = %s
-            ORDER BY r.fecha DESC, r.hora DESC LIMIT 20
+            ORDER BY r.fecha DESC, r.hora DESC LIMIT 30
         """, (barberia_id,))
         return [
             {
@@ -140,7 +143,7 @@ def listar_reservas(barberia_id: int):
                 "fecha": str(r[2]), 
                 "hora": str(r[3]), 
                 "barbero": r[4],
-                "telefono": r[5] # <--- Enviamos el teléfono al admin
+                "telefono": r[5]
             } for r in cursor.fetchall()
         ]
     finally:
