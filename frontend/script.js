@@ -11,7 +11,7 @@ async function seleccionarServicio(nombre, precio) {
 
 async function cargarBarberos() {
     const contenedor = document.getElementById('contenedor-barberos-fotos');
-    contenedor.innerHTML = "<p style='text-align:center;'>Buscando barberos...</p>";
+    contenedor.innerHTML = "<p style='text-align:center;'>Cargando barberos...</p>";
     
     try {
         const response = await fetch('/barberos/1');
@@ -25,7 +25,6 @@ async function cargarBarberos() {
                 <img src="${b.foto_url || 'https://via.placeholder.com/100'}" alt="${b.nombre}">
                 <span>${b.nombre}</span>
             `;
-            
             card.onclick = () => {
                 document.querySelectorAll('.barbero-card').forEach(c => c.classList.remove('selected'));
                 card.classList.add('selected');
@@ -33,8 +32,8 @@ async function cargarBarberos() {
             };
             contenedor.appendChild(card);
         });
-    } catch (error) {
-        contenedor.innerHTML = "<p style='color:red;'>Error al cargar barberos</p>";
+    } catch (e) {
+        contenedor.innerHTML = "<p style='color:red;'>Error al conectar</p>";
     }
 }
 
@@ -51,19 +50,23 @@ async function agendarCita() {
     const fecha = document.getElementById('fecha').value;
     const hora = document.getElementById('hora').value;
 
-    if (!barberoIdSeleccionado) return alert("Selecciona un barbero.");
-    if (!nombre || !email || !telefono || !fecha || !hora) return alert("Completa todos los campos.");
+    if (!barberoIdSeleccionado || !nombre || !fecha || !hora) return alert("Completa todos los datos");
 
-    const url = `/reservas?barberia_id=1&barbero_id=${barberoIdSeleccionado}&cliente_nombre=${encodeURIComponent(nombre)}&cliente_email=${encodeURIComponent(email)}&cliente_telefono=${encodeURIComponent(telefono)}&servicio=${encodeURIComponent(servicioSeleccionado)}&fecha=${fecha}&hora=${hora}`;
+    const params = new URLSearchParams({
+        barberia_id: 1, barbero_id: barberoIdSeleccionado,
+        cliente_nombre: nombre, cliente_email: email,
+        cliente_telefono: telefono, servicio: servicioSeleccionado,
+        fecha: fecha, hora: hora
+    });
 
     try {
-        const response = await fetch(url, { method: 'POST' });
-        if (response.ok) {
-            alert("✅ Reserva confirmada");
+        const res = await fetch(`/reservas?${params.toString()}`, { method: 'POST' });
+        if (res.ok) {
+            alert("✅ ¡Cita Agendada!");
             window.location.reload();
         } else {
-            const data = await response.json();
-            alert("❌ Error: " + data.detail);
+            const err = await res.json();
+            alert("❌ " + err.detail);
         }
-    } catch (e) { alert("Error de conexión"); }
+    } catch (e) { alert("Error de red"); }
 }
