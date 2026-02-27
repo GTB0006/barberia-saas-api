@@ -1,56 +1,217 @@
 <!DOCTYPE html>
+
 <html lang="es">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Blessed Barbershop - Reservas</title>
+
     <link rel="stylesheet" href="/frontend/style.css">
+
 </head>
+
 <body>
+
     <div class="container">
+
         <header>
+
             <h1 class="gold-text">Blessed Barbershop</h1>
-            <p>Elegancia y Estilo en cada corte</p>
+
+            <p>Agende su cita con los mejores</p>
+
         </header>
 
+
+
         <div id="contenedor-servicios" class="card-dark">
-            <h3 class="gold-text">Servicios</h3>
-            <div class="servicio-item" onclick="seleccionarServicio('Corte Moderno', '35.000')">
-                <div class="servicio-info"><span>Corte Moderno</span><span>40 min</span></div>
-                <span class="precio">35.000 COP</span>
+
+            <h3 class="gold-text">SELECCIONA UN SERVICIO</h3>
+
+            <div class="lista-servicios">
+
+                <div class="servicio-item" onclick="seleccionarServicio('Corte moderno', '35.000')">
+
+                    <div class="servicio-info">
+
+                        <span>Corte de cabello moderno</span>
+
+                        <span>40 min</span>
+
+                    </div>
+
+                    <span class="precio">35.000 COP</span>
+
+                </div>
+
+                <div class="servicio-item" onclick="seleccionarServicio('Corte y barba moderno', '50.000')">
+
+                    <div class="servicio-info">
+
+                        <span>Corte y barba moderno</span>
+
+                        <span>1 h</span>
+
+                    </div>
+
+                    <span class="precio">50.000 COP</span>
+
+                </div>
+
+                <div class="servicio-item" onclick="seleccionarServicio('Corte y barba pintada', '60.000')">
+
+                    <div class="servicio-info">
+
+                        <span>Corte y barba pintada</span>
+
+                        <span>1 h</span>
+
+                    </div>
+
+                    <span class="precio">60.000 COP</span>
+
+                </div>
+
+                <div class="servicio-item" onclick="seleccionarServicio('Barba sencilla', '20.000')">
+
+                    <div class="servicio-info">
+
+                        <span>Barba sencilla</span>
+
+                        <span>30 min</span>
+
+                    </div>
+
+                    <span class="precio">20.000 COP</span>
+
+                </div>
+
+                <div class="servicio-item" onclick="seleccionarServicio('Barba pintada', '30.000')">
+
+                    <div class="servicio-info">
+
+                        <span>Barba pintada</span>
+
+                        <span>40 min</span>
+
+                    </div>
+
+                    <span class="precio">30.000 COP</span>
+
+                </div>
+
+                <div class="servicio-item" onclick="seleccionarServicio('Limpieza facial', '20.000')">
+
+                    <div class="servicio-info">
+
+                        <span>Limpieza facial</span>
+
+                        <span>30 min</span>
+
+                    </div>
+
+                    <span class="precio">20.000 COP</span>
+
+                </div>
+
             </div>
-            <div class="servicio-item" onclick="seleccionarServicio('Corte y Barba', '50.000')">
-                <div class="servicio-info"><span>Corte y Barba</span><span>1 h</span></div>
-                <span class="precio">50.000 COP</span>
-            </div>
-            </div>
+
+        </div>
+
+
 
         <div id="formulario-datos" class="card-dark" style="display: none;">
-            <button class="btn-volver" onclick="volverAServicios()">⬅ Volver</button>
-            <h2 id="resumen-servicio" class="gold-text" style="text-align:center;"></h2>
-            
-            <label>Elige tu Barbero:</label>
-            <div id="contenedor-barberos-fotos" class="barberos-grid"></div>
 
-            <div class="form-group"><label>Nombre:</label><input type="text" id="cliente_nombre"></div>
-            <div class="form-group"><label>WhatsApp:</label><input type="tel" id="cliente_telefono"></div>
-            <div class="form-group"><label>Email:</label><input type="email" id="cliente_email"></div>
+            <button class="btn-volver" onclick="volverAServicios()">⬅ Cambiar servicio</button>
+
+            <h2 id="resumen-servicio" class="gold-text" style="margin-top:20px; text-align: center;"></h2>
+
+
+
+            <div class="form-group">
+
+                <label>Selecciona tu Barbero:</label>
+
+                <div id="contenedor-barberos-fotos" class="barberos-grid"></div>
+
+            </div>
+
+
+
+            <div class="form-group"><label>Tu Nombre:</label><input type="text" id="cliente_nombre" placeholder="Ej: Juan Perez"></div>
+
+            <div class="form-group"><label>Tu Correo:</label><input type="email" id="cliente_email" placeholder="ejemplo@correo.com"></div>
+
+            <div class="form-group"><label>Tu Celular:</label><input type="tel" id="cliente_telefono" placeholder="Ej: 3001234567"></div>
+
             <div class="form-group"><label>Fecha:</label><input type="date" id="fecha"></div>
+
             <div class="form-group"><label>Hora:</label><input type="time" id="hora"></div>
 
-            <button class="btn-agendar" onclick="agendarCita()">RESERVAR AHORA</button>
+
+
+            <button class="btn-agendar" onclick="agendarCita()">CONFIRMAR RESERVA</button>
+
         </div>
 
-        <div class="card-dark info-ubicacion">
-            <h3 class="gold-text">📍 Ubicación</h3>
-            <a href="https://www.google.com/maps/search/?api=1&query=Calle+38+Sur+34-22+Envigado" target="_blank">
-                <p>Cl. 38 Sur #34-22, Envigado, Antioquia</p>
-            </a>
-            <div class="mapa-frame">
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.5!2d-75.58!3d6.17" width="100%" height="200" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-            </div>
-        </div>
+
+
+        <div class="card-dark ubicacion-container" style="margin-top: 30px;">
+
+    <div class="info-ubicacion">
+
+        <h3 class="gold-text">NUESTRA UBICACIÓN</h3>
+
+        <a href="https://www.google.com/maps/search/?api=1&query=Blessed+Barbershop+Envigado+Cl.+38+Sur+%2334-22" 
+
+           target="_blank" 
+
+           style="text-decoration: none; color: inherit;">
+
+            <p>📍 Cl. 38 Sur #34-22, Envigado, Antioquia</p>
+
+        </a>
+
+        <p class="text-gray">Lunes a Sábado: 9AM - 10PM</p>
+
     </div>
+
+    
+
+    <div class="mapa-frame">
+
+        <iframe 
+
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.521260322283!2d-75.5861!3d6.1759!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e46828225e1c021%3A0x4436181fc8024791!2sCl.%2038%20Sur%20%2334-22%2C%20Envigado%2C%20Antioquia!5e0!3m2!1ses!2sco!4v1709100000000!5m2!1ses!2sco" 
+
+            width="100%" 
+
+            height="250" 
+
+            style="border:0;" 
+
+            allowfullscreen="" 
+
+            loading="lazy" 
+
+            referrerpolicy="no-referrer-when-downgrade">
+
+        </iframe>
+
+         </div>
+
+      </div>
+
+        
+
+    </div>
+
     <script src="/frontend/script.js"></script>
+
 </body>
+
 </html>
