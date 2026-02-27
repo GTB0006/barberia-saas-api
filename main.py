@@ -58,7 +58,8 @@ def crear_reserva(
     barbero_id: int,
     cliente_nombre: str,
     cliente_email: str,
-    servicio: str,  # <--- NUEVO CAMPO
+    cliente_telefono: str,
+    servicio: str,
     fecha: str,
     hora: str,
     background_tasks: BackgroundTasks
@@ -81,22 +82,21 @@ def crear_reserva(
         if cursor.fetchone():
             raise HTTPException(status_code=400, detail="Horario no disponible")
 
-        # 3. Guardar en Base de Datos (Incluyendo servicio)
-       cursor.execute("""
-        INSERT INTO reservas (barberia_id, barbero_id, cliente_nombre, cliente_email, cliente_telefono, servicio, fecha, hora)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-    """, (barberia_id, barbero_id, cliente_nombre, cliente_email, cliente_telefono, servicio, fecha, hora))
+        # 3. Guardar en Base de Datos
+        cursor.execute("""
+            INSERT INTO reservas (barberia_id, barbero_id, cliente_nombre, cliente_email, cliente_telefono, servicio, fecha, hora)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """, (barberia_id, barbero_id, cliente_nombre, cliente_email, cliente_telefono, servicio, fecha, hora))
         
         conn.commit()
 
         # 4. Datos para notificaciones
         cursor.execute("SELECT nombre FROM barberos WHERE id = %s", (barbero_id,))
-        profesional = cursor.fetchone()[0]
+        res = cursor.fetchone()
+        profesional = res[0] if res else "Barbero"
 
-        # 5. Envíos (Email directo para ver logs, Calendario en background)
-        print(f"--- Intentando enviar email a {cliente_email} por servicio: {servicio} ---")
+        # 5. Envíos
         try:
-            # Puedes pasar el 'servicio' a la función de email si quieres que aparezca en el cuerpo
             email_sender.enviar_confirmacion(cliente_email, cliente_nombre, fecha, hora, profesional)
         except Exception as e:
             print(f"❌ Error email: {e}")
@@ -126,6 +126,14 @@ def listar_reservas(barberia_id: int):
             WHERE r.barberia_id = %s
             ORDER BY r.fecha DESC LIMIT 10
         """, (barberia_id,))
-        return [{"cliente": r[0], "servicio": r[1], "fecha": str(r[2]), "hora": str(r[3]), "barbero": r[4]} for r in cursor.fetchall()]
+        return [
+            {
+                "cliente": r[0], 
+                "servicio": r[1], 
+                "fecha": str(r[2]), 
+                "hora": str(r[3]), 
+                "barbero": r[4]
+            } for r in cursor.fetchall()
+        ]
     finally:
         conn.close()
