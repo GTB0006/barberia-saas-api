@@ -13,48 +13,55 @@ header { text-align: center; margin-bottom: 30px; }
 .gold-text { color: var(--gold); text-transform: uppercase; letter-spacing: 2px; }
 .card-dark { background: var(--card-bg); padding: 25px; border-radius: 15px; margin-bottom: 20px; }
 
-/* SERVICIOS */
-.servicio-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
-.servicio-item .precio { color: var(--gold); font-weight: bold; }
-
-/* BARBEROS GRID - DISEÑO CIRCULAR Y CENTRADO */
-.barberos-grid { 
-    display: flex; 
-    justify-content: center; 
-    gap: 20px; 
-    flex-wrap: wrap; 
-    margin: 20px 0; 
+/* --- SERVICIOS CORREGIDOS (Para que el tiempo salga abajo) --- */
+.servicio-info {
+    display: flex;
+    flex-direction: column; /* Esto pone el tiempo DEBAJO del nombre */
+    align-items: flex-start;
 }
 
+.servicio-info span:last-child {
+    font-size: 0.8rem;
+    color: var(--text-gray);
+    margin-top: 4px; /* Espacio entre nombre y tiempo */
+}
+
+/* --- BARBEROS CON RECUADRO (Como en la foto que adjuntaste) --- */
 .barbero-card { 
-    background: transparent; 
-    padding: 10px; 
+    background: #222; /* Fondo oscuro para el recuadro */
+    border: 2px solid transparent; 
+    padding: 15px; 
+    border-radius: 12px; 
     text-align: center; 
     cursor: pointer; 
-    width: 110px; 
+    width: 120px; 
     display: flex;
     flex-direction: column;
     align-items: center;
+    transition: all 0.3s ease;
+}
+
+.barbero-card:hover {
+    background: #2a2a2a;
 }
 
 .barbero-card img { 
-    width: 80px; 
-    height: 80px; 
+    width: 70px; 
+    height: 70px; 
     border-radius: 50%; 
     object-fit: cover; 
-    border: 3px solid var(--border);
-    margin-bottom: 8px;
-    transition: 0.3s;
+    border: 2px solid var(--border);
+    margin-bottom: 10px;
 }
 
-.barbero-card span {
-    font-size: 0.85rem;
-    font-weight: bold;
-    color: var(--text-white);
+.barbero-card.selected { 
+    border-color: var(--gold); 
+    background: #2a2210; /* Color café oscuro al seleccionar */
 }
 
-.barbero-card.selected img { border-color: var(--gold); transform: scale(1.1); }
-.barbero-card.selected span { color: var(--gold); }
+.barbero-card.selected span { 
+    color: var(--gold); 
+}
 
 /* FORM */
 .form-group { margin-bottom: 15px; }
