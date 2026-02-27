@@ -1,266 +1,145 @@
 <!DOCTYPE html>
-
 <html lang="es">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Admin - Blessed Barbershop</title>
-
     <link rel="stylesheet" href="/frontend/style.css">
-
 </head>
-
-<body class="admin-body" style="padding: 20px;">
-
+<body style="background: #000; color: #fff; padding: 20px; font-family: sans-serif;">
     <h1 class="gold-text" style="text-align: center;">Gestión de Citas</h1>
-
     
-
-    <div class="card-dark" style="display: flex; gap: 15px; align-items: center; justify-content: center; flex-wrap: wrap;">
-
-        <span id="count-text" style="background: var(--gold); color: #000; padding: 8px 15px; border-radius: 20px; font-weight: bold;">Calculando...</span>
-
+    <div style="background: #1a1a1a; padding: 20px; border-radius: 15px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; justify-content: center; flex-wrap: wrap; border: 1px solid #333;">
+        <span id="count-text" style="background: #c5a059; color: #000; padding: 8px 20px; border-radius: 20px; font-weight: bold;">Calculando...</span>
         
-
-        <input type="date" id="filtro-fecha" onchange="filtrarTabla()">
-
+        <input type="date" id="filtro-fecha" onchange="filtrarTabla()" style="padding: 10px; border-radius: 8px; background: #222; color: #fff; border: 1px solid #444;">
         
-
         <select id="filtro-barbero" onchange="filtrarTabla()" style="padding: 10px; border-radius: 8px; background: #222; color: #fff; border: 1px solid #444;">
-
             <option value="">Todos los Barberos</option>
-
             <option value="Juan Camilo">Juan Camilo</option>
-
             <option value="Juan Sebastian">Juan Sebastian</option>
-
         </select>
 
-
-
-        <button onclick="limpiarFiltro()" class="btn-volver" style="margin-bottom: 0;">Limpiar</button>
-
+        <button onclick="limpiarFiltro()" style="padding: 10px 20px; background: #333; color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s;">Limpiar</button>
     </div>
 
+    <div id="status" style="text-align: center; color: #c5a059;">Validando acceso...</div>
 
+    <style>
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #111; border-radius: 10px; overflow: hidden; }
+        th { background: #c5a059; color: #000; padding: 15px; text-align: left; text-transform: uppercase; font-size: 0.8rem; }
+        td { padding: 15px; border-bottom: 1px solid #222; font-size: 0.9rem; }
+        tr:hover { background: #1a1a1a; }
+    </style>
 
-    <div id="status" style="text-align: center; color: var(--gold);">Validando acceso...</div>
-
-
-
-    <div style="overflow-x: auto;">
-
-        <table id="tabla-admin" style="display: none;">
-
-            <thead>
-
-                <tr>
-
-                    <th>ESTADO</th>
-
-                    <th>CLIENTE</th>
-
-                    <th>SERVICIO</th>
-
-                    <th>BARBERO</th>
-
-                    <th>FECHA</th>
-
-                    <th>HORA</th>
-
-                    <th>WHATSAPP</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody id="lista-reservas"></tbody>
-
-        </table>
-
-    </div>
-
-
+    <table id="tabla-admin" style="display: none;">
+        <thead>
+            <tr>
+                <th>ESTADO</th>
+                <th>CLIENTE</th>
+                <th>SERVICIO</th>
+                <th>BARBERO</th>
+                <th>FECHA</th>
+                <th>HORA</th>
+                <th>WHATSAPP</th>
+            </tr>
+        </thead>
+        <tbody id="lista-reservas"></tbody>
+    </table>
 
     <script>
-
-        // ... (Tu código JavaScript actual está bien, solo asegúrate que la ruta del fetch sea correcta)
-
         let password = "";
-
         let todasLasReservas = [];
 
-
-
         async function validar() {
-
             password = prompt("Clave de Admin:");
-
             if(password === "Blessed2026") {
-
                 document.getElementById('status').style.display = 'none';
-
                 document.getElementById('tabla-admin').style.display = 'table';
-
                 await cargarDatos();
-
             } else {
-
-                alert("Incorrecto");
-
+                alert("Clave incorrecta");
                 window.location.reload();
-
             }
-
         }
-
-
 
         async function cargarDatos() {
-
             try {
-
-                // Asegúrate que esta ruta coincida con tu backend en FastAPI
-
-                const res = await fetch(`/reservas?token=${password}`);
-
+                // IMPORTANTE: Asegúrate que la ruta sea /reservas/1 (ID de tu barbería)
+                const res = await fetch(`/reservas/1?token=${password}`);
+                if (!res.ok) throw new Error("Error en la respuesta del servidor");
+                
                 todasLasReservas = await res.json();
-
                 renderizarTabla(todasLasReservas);
-
             } catch(e) { 
-
                 console.error(e);
-
-                alert("Error al cargar datos del servidor"); 
-
+                alert("Error al cargar datos del servidor. Verifica la conexión."); 
             }
-
         }
-
-
 
         function renderizarTabla(lista) {
-
             const tbody = document.getElementById('lista-reservas');
-
             const countText = document.getElementById('count-text');
-
-            const ahora = new Date();
-
             
-
-            // Ajuste para zona horaria local (Colombia)
-
-            const fechaHoy = ahora.toLocaleDateString('en-CA'); // Formato YYYY-MM-DD
-
-            const horaActualNum = ahora.getHours() * 100 + ahora.getMinutes();
-
+            const ahora = new Date();
+            // Ajuste de fecha local para Colombia (UTC-5)
+            const hoyStr = ahora.toLocaleDateString('en-CA'); // Formato YYYY-MM-DD
+            
             let pendientesHoy = 0;
 
-
+            if (lista.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px;">No hay reservas registradas</td></tr>';
+                countText.innerText = "Sin citas";
+                return;
+            }
 
             tbody.innerHTML = lista.map(r => {
+                // Comprobar si la cita ya pasó
+                const fechaCita = r.fecha; // Viene como string YYYY-MM-DD
+                const estaPasada = fechaCita < hoyStr;
 
-                const [h, m] = r.hora.split(':').map(Number);
-
-                const horaReservaNum = h * 100 + m;
-
-                
-
-                // Lógica de estado
-
-                let estaPasada = (r.fecha < fechaHoy || (r.fecha === fechaHoy && horaReservaNum < horaActualNum));
-
-
-
-                if (r.fecha === fechaHoy && !estaPasada) pendientesHoy++;
-
-
+                if (fechaCita === hoyStr && !estaPasada) pendientesHoy++;
 
                 const estiloFila = estaPasada ? 'style="color: #666; opacity: 0.6;"' : '';
-
                 
-
                 return `
-
                 <tr ${estiloFila}>
-
                     <td>${estaPasada ? '✅' : '⏳'}</td>
-
                     <td>${r.cliente}</td>
-
                     <td>${r.servicio}</td>
-
                     <td>${r.barbero}</td>
-
                     <td>${r.fecha}</td>
-
                     <td><b>${r.hora}</b></td>
-
                     <td>
-
-                        <a href="https://wa.me/${r.telefono}" target="_blank" 
-
-                           style="color:${estaPasada ? '#555' : '#25d366'}; font-weight: bold; text-decoration:none;">
-
-                           ${estaPasada ? 'Finalizada' : 'WhatsApp 💬'}
-
+                        <a href="https://wa.me/${r.telefono.replace(/\s+/g, '')}" target="_blank" 
+                           style="color:${estaPasada ? '#444' : '#25d366'}; text-decoration:none; font-weight:bold;">
+                           ${estaPasada ? 'Finalizada' : '📱 Chat'}
                         </a>
-
                     </td>
-
                 </tr>`;
-
             }).join('');
 
-
-
-            countText.innerText = `Citas pendientes hoy: ${pendientesHoy}`;
-
+            countText.innerText = `Citas hoy: ${pendientesHoy}`;
         }
-
-
 
         function filtrarTabla() {
-
             const f = document.getElementById('filtro-fecha').value;
-
             const b = document.getElementById('filtro-barbero').value;
-
             let filtradas = todasLasReservas;
-
+            
             if (f) filtradas = filtradas.filter(r => r.fecha === f);
-
             if (b) filtradas = filtradas.filter(r => r.barbero === b);
-
+            
             renderizarTabla(filtradas);
-
         }
-
-
 
         function limpiarFiltro() {
-
             document.getElementById('filtro-fecha').value = "";
-
             document.getElementById('filtro-barbero').value = "";
-
             renderizarTabla(todasLasReservas);
-
         }
 
-
-
         window.onload = validar;
-
     </script>
-
 </body>
-
 </html>
 
