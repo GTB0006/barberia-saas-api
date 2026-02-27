@@ -1,67 +1,85 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Admin - Blessed Barbershop</title>
-    <link rel="stylesheet" href="/frontend/style.css">
-</head>
-<body>
-    <div style="max-width: 900px; margin: 0 auto;">
-        <h1 class="gold-text" style="text-align: center;">Panel Admin</h1>
-        <div class="card-dark" style="display: flex; gap: 10px; justify-content: center;">
-            <span id="count-text" style="background:var(--gold); color:#000; padding:5px 15px; border-radius:15px; font-weight:bold;">Cargando...</span>
-            <input type="date" id="filtro-fecha" onchange="filtrar()">
-        </div>
 
-        <table id="tabla-admin" style="display:none;">
-            <thead>
-                <tr><th>ESTADO</th><th>CLIENTE</th><th>SERVICIO</th><th>BARBERO</th><th>FECHA</th><th>HORA</th><th>WA</th></tr>
-            </thead>
-            <tbody id="lista-reservas"></tbody>
-        </table>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin - Blessed Barbershop</title>
+
+    <link rel="stylesheet" href="/frontend/style.css">
+
+</head>
+
+<body class="admin-body" style="padding: 20px;">
+
+    <h1 class="gold-text" style="text-align: center;">Gestión de Citas</h1>
+
+    
+
+    <div class="card-dark" style="display: flex; gap: 15px; align-items: center; justify-content: center; flex-wrap: wrap;">
+
+        <span id="count-text" style="background: var(--gold); color: #000; padding: 8px 15px; border-radius: 20px; font-weight: bold;">Calculando...</span>
+
+        
+
+        <input type="date" id="filtro-fecha" onchange="filtrarTabla()">
+
+        
+
+        <select id="filtro-barbero" onchange="filtrarTabla()" style="padding: 10px; border-radius: 8px; background: #222; color: #fff; border: 1px solid #444;">
+
+            <option value="">Todos los Barberos</option>
+
+            <option value="Juan Camilo">Juan Camilo</option>
+
+            <option value="Juan Sebastian">Juan Sebastian</option>
+
+        </select>
+
+
+
+        <button onclick="limpiarFiltro()" class="btn-volver" style="margin-bottom: 0;">Limpiar</button>
+
     </div>
 
-    <script>
-        let password = "";
-        let todas = [];
 
-        async function validar() {
-            password = prompt("Clave:");
-            if(password === "Blessed2026") {
-                document.getElementById('tabla-admin').style.display = 'table';
-                await cargar();
-            } else { location.reload(); }
-        }
 
-        async function cargar() {
-            const res = await fetch(`/reservas/1?token=${password}`);
-            todas = await res.json();
-            render(todas);
-        }
+    <div id="status" style="text-align: center; color: var(--gold);">Validando acceso...</div>
 
-        function render(lista) {
-            const tbody = document.getElementById('lista-reservas');
-            const hoy = new Date().toISOString().split('T')[0];
-            tbody.innerHTML = lista.map(r => {
-                const pasada = r.fecha < hoy;
-                return `<tr style="${pasada ? 'opacity: 0.5' : ''}">
-                    <td>${pasada ? '✅' : '⏳'}</td>
-                    <td>${r.cliente}</td>
-                    <td>${r.servicio}</td>
-                    <td>${r.barbero}</td>
-                    <td>${r.fecha}</td>
-                    <td>${r.hora}</td>
-                    <td><a href="https://wa.me/${r.telefono}" target="_blank" style="color:#25d366">Chat</a></td>
-                </tr>`;
-            }).join('');
-            document.getElementById('count-text').innerText = `Total: ${lista.length}`;
-        }
 
-        function filtrar() {
-            const f = document.getElementById('filtro-fecha').value;
-            render(f ? todas.filter(r => r.fecha === f) : todas);
-        }
-        window.onload = validar;
-    </script>
-</body>
-</html>
+
+    <div style="overflow-x: auto;">
+
+        <table id="tabla-admin" style="display: none;">
+
+            <thead>
+
+                <tr>
+
+                    <th>ESTADO</th>
+
+                    <th>CLIENTE</th>
+
+                    <th>SERVICIO</th>
+
+                    <th>BARBERO</th>
+
+                    <th>FECHA</th>
+
+                    <th>HORA</th>
+
+                    <th>WHATSAPP</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="lista-reservas"></tbody>
+
+        </table>
+
+    </div>
