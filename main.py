@@ -119,7 +119,7 @@ def crear_reserva(
         conn.close()
 
 # ======================================================
-# LISTAR RESERVAS
+# LISTAR RESERVAS (Actualizado con Teléfono)
 # ======================================================
 @app.get("/reservas/{barberia_id}")
 def listar_reservas(barberia_id: int):
@@ -127,11 +127,11 @@ def listar_reservas(barberia_id: int):
     try:
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT r.cliente_nombre, r.servicio, r.fecha, r.hora, b.nombre
+            SELECT r.cliente_nombre, r.servicio, r.fecha, r.hora, b.nombre, r.cliente_telefono
             FROM reservas r
             JOIN barberos b ON r.barbero_id = b.id
             WHERE r.barberia_id = %s
-            ORDER BY r.fecha DESC LIMIT 10
+            ORDER BY r.fecha DESC, r.hora DESC LIMIT 20
         """, (barberia_id,))
         return [
             {
@@ -139,7 +139,8 @@ def listar_reservas(barberia_id: int):
                 "servicio": r[1], 
                 "fecha": str(r[2]), 
                 "hora": str(r[3]), 
-                "barbero": r[4]
+                "barbero": r[4],
+                "telefono": r[5] # <--- Enviamos el teléfono al admin
             } for r in cursor.fetchall()
         ]
     finally:
