@@ -82,10 +82,10 @@ def crear_reserva(
             raise HTTPException(status_code=400, detail="Horario no disponible")
 
         # 3. Guardar en Base de Datos (Incluyendo servicio)
-        cursor.execute("""
-            INSERT INTO reservas (barberia_id, barbero_id, cliente_nombre, cliente_email, servicio, fecha, hora)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """, (barberia_id, barbero_id, cliente_nombre, cliente_email, servicio, fecha, hora))
+       cursor.execute("""
+        INSERT INTO reservas (barberia_id, barbero_id, cliente_nombre, cliente_email, cliente_telefono, servicio, fecha, hora)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+    """, (barberia_id, barbero_id, cliente_nombre, cliente_email, cliente_telefono, servicio, fecha, hora))
         
         conn.commit()
 
