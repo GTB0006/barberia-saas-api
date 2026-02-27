@@ -2,58 +2,61 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Panel Admin - Blessed Barbershop</title>
-    <link rel="stylesheet" href="/frontend/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Blessed Barbershop</title>
     <style>
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1a1a1a; }
-        th, td { padding: 12px; border: 1px solid #333; text-align: left; color: white; }
-        th { background: #c5a059; color: black; }
-        tr:nth-child(even) { background: #222; }
+        body { background-color: #000; color: #fff; font-family: sans-serif; padding: 20px; }
+        .gold-text { color: #c5a059; text-transform: uppercase; letter-spacing: 2px; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #111; }
+        th, td { padding: 12px; border: 1px solid #333; text-align: left; font-size: 0.9rem; }
+        th { background: #c5a059; color: #000; }
+        .btn-refresh { background: #c5a059; padding: 10px 20px; border: none; cursor: pointer; font-weight: bold; border-radius: 5px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
-    <div class="container" style="max-width: 800px;">
-        <h1 class="gold-text">Gestión de Reservas</h1>
-        <button onclick="cargarReservas()" class="btn-agendar" style="width: auto; padding: 10px 20px;">🔄 Actualizar Lista</button>
-        
-        <table id="tabla-reservas">
-            <thead>
-                <tr>
-                    <th>Cliente</th>
-                    <th>Teléfono</th>
-                    <th>Servicio</th>
-                    <th>Barbero</th>
-                    <th>Fecha/Hora</th>
-                </tr>
-            </thead>
-            <tbody>
-                </tbody>
-        </table>
-    </div>
+    <h1 class="gold-text">Panel de Control - Reservas</h1>
+    <button class="btn-refresh" onclick="cargarReservas()">🔄 ACTUALIZAR LISTA</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>CLIENTE</th>
+                <th>TELÉFONO</th>
+                <th>SERVICIO</th>
+                <th>BARBERO</th>
+                <th>FECHA / HORA</th>
+            </tr>
+        </thead>
+        <tbody id="lista-reservas">
+            </tbody>
+    </table>
 
     <script>
         async function cargarReservas() {
+            const tabla = document.getElementById('lista-reservas');
+            tabla.innerHTML = "<tr><td colspan='5'>Cargando reservas...</td></tr>";
+            
             try {
-                // Llamamos al endpoint que ya tienes en el main.py
-                const response = await fetch('/reservas/1'); 
-                const reservas = await response.json();
-                const tbody = document.querySelector('#tabla-reservas tbody');
-                tbody.innerHTML = "";
-
-                reservas.forEach(r => {
-                    const fila = `<tr>
-                        <td>${r.cliente}</td>
-                        <td>${r.telefono || 'N/A'}</td>
-                        <td>${r.servicio}</td>
-                        <td>${r.barbero}</td>
-                        <td>${r.fecha} <br> <b>${r.hora}</b></td>
-                    </tr>`;
-                    tbody.innerHTML += fila;
+                const response = await fetch('/reservas/1');
+                const data = await response.json();
+                
+                tabla.innerHTML = "";
+                data.forEach(reserva => {
+                    tabla.innerHTML += `
+                        <tr>
+                            <td>${reserva.cliente}</td>
+                            <td><a href="https://wa.me/${reserva.telefono}" style="color: #25d366; text-decoration: none;" target="_blank">WhatsApp: ${reserva.telefono}</a></td>
+                            <td>${reserva.servicio}</td>
+                            <td>${reserva.barbero}</td>
+                            <td>${reserva.fecha} a las <b>${reserva.hora}</b></td>
+                        </tr>
+                    `;
                 });
-            } catch (e) {
-                alert("Error al cargar reservas");
+            } catch (error) {
+                tabla.innerHTML = "<tr><td colspan='5' style='color:red;'>Error al conectar con la base de datos</td></tr>";
             }
         }
+        
         window.onload = cargarReservas;
     </script>
 </body>
