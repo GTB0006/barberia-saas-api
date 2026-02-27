@@ -1,162 +1,30 @@
 :root {
-    --bg-dark: #000000;
-    --card-bg: #1a1a1a;
-    --gold: #c5a059;
-    --text-white: #ffffff;
-    --text-gray: #888888;
-    --border: #333333;
+    --bg-dark: #000; --card-bg: #1a1a1a; --gold: #c5a059; --text-white: #fff; --text-gray: #888; --border: #333;
 }
 
-body {
-    background-color: var(--bg-dark);
-    color: var(--text-white);
-    font-family: 'Arial', sans-serif;
-    margin: 0;
-    padding: 20px;
-}
+body { background-color: var(--bg-dark); color: var(--text-white); font-family: 'Arial', sans-serif; margin: 0; padding: 20px; }
+.container { max-width: 600px; margin: 0 auto; }
+header { text-align: center; margin-bottom: 30px; }
+.gold-text { color: var(--gold); text-transform: uppercase; letter-spacing: 2px; }
+.card-dark { background: var(--card-bg); padding: 25px; border-radius: 15px; margin-bottom: 20px; }
 
-.container {
-    max-width: 500px;
-    margin: 0 auto;
-}
+/* SERVICIOS */
+.servicio-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
+.servicio-item .precio { color: var(--gold); font-weight: bold; }
 
-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
+/* BARBEROS GRID */
+.barberos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 10px 0; }
+.barbero-card { background: #222; border: 2px solid transparent; padding: 10px; border-radius: 12px; text-align: center; cursor: pointer; }
+.barbero-card img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
+.barbero-card.selected { border-color: var(--gold); background: #2a2210; }
 
-.gold-text {
-    color: var(--gold);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
+/* FORM */
+.form-group { margin-bottom: 15px; }
+label { display: block; color: var(--text-gray); font-size: 0.8rem; margin-bottom: 5px; }
+input { width: 100%; padding: 12px; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box; }
+.btn-agendar { width: 100%; padding: 15px; background: var(--gold); border: none; font-weight: bold; cursor: pointer; border-radius: 8px; }
 
-.card-dark {
-    background: var(--card-bg);
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-}
-
-/* --- LISTA DE SERVICIOS --- */
-.servicio-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 0;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-}
-
-.servicio-item:last-child { border-bottom: none; }
-
-.servicio-item .nombre {
-    display: block;
-    font-size: 1.1rem;
-    font-weight: bold;
-}
-
-.servicio-item .duracion {
-    color: var(--text-gray);
-    font-size: 0.9rem;
-}
-
-.servicio-item .precio {
-    color: var(--gold);
-    font-weight: bold;
-}
-
-/* --- GRID DE BARBEROS --- */
-.barberos-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-    margin-top: 10px;
-    margin-bottom: 20px;
-}
-
-.barbero-card {
-    background: #222;
-    border: 2px solid transparent;
-    padding: 15px;
-    border-radius: 12px;
-    text-align: center;
-    cursor: pointer;
-    transition: 0.3s ease;
-}
-
-.barbero-card:hover {
-    background: #2a2a2a;
-}
-
-.barbero-card img {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 8px;
-    border: 2px solid #444;
-}
-
-.barbero-card.selected {
-    border-color: var(--gold);
-    background: #2a2210;
-}
-
-.barbero-card span {
-    display: block;
-    font-size: 0.95rem;
-    font-weight: 500;
-}
-
-/* --- FORMULARIO --- */
-.form-group {
-    margin-bottom: 20px;
-}
-
-label {
-    display: block;
-    margin-bottom: 8px;
-    color: var(--text-gray);
-    font-size: 0.9rem;
-    text-transform: uppercase;
-}
-
-input {
-    width: 100%;
-    padding: 14px;
-    background: #222;
-    border: 1px solid #444;
-    color: white;
-    border-radius: 10px;
-    box-sizing: border-box;
-    font-size: 1rem;
-}
-
-input:focus {
-    border-color: var(--gold);
-    outline: none;
-}
-
-.btn-agendar {
-    width: 100%;
-    padding: 16px;
-    background: var(--gold);
-    color: black;
-    border: none;
-    border-radius: 10px;
-    font-weight: bold;
-    font-size: 1rem;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-.btn-volver {
-    background: none;
-    border: 1px solid var(--gold);
-    color: var(--gold);
-    padding: 6px 15px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 0.8rem;
-}
+/* UBICACIÓN - LADO A LADO */
+.ubicacion-container { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; }
+.info-ubicacion { flex: 1; min-width: 200px; }
+.mapa-frame { flex: 1.5; min-width: 250px; border-radius: 15px; overflow: hidden; border: 1px solid var(--gold); }
