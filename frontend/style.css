@@ -28,3 +28,9 @@ input { width: 100%; padding: 12px; background: #222; border: 1px solid #444; co
 .ubicacion-container { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; }
 .info-ubicacion { flex: 1; min-width: 200px; }
 .mapa-frame { flex: 1.5; min-width: 250px; border-radius: 15px; overflow: hidden; border: 1px solid var(--gold); }
+
+/* Estilo para filas pasadas en el admin */
+tr[style*="color: #666"] td {
+    border-color: #222;
+    text-decoration: line-through rgba(255,255,255,0.1); /* Tacha suavemente el texto */
+}
