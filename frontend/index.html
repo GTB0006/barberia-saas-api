@@ -15,7 +15,7 @@
         </header>
 
         <div id="contenedor-servicios" class="card-dark">
-            <h3 class="gold-text">Selecciona un servicio</h3>
+            <h3 class="gold-text">SELECCIONA UN SERVICIO</h3>
             <div class="lista-servicios">
                 <div class="servicio-item" onclick="seleccionarServicio('Corte de cabello moderno', '35.000')">
                     <div class="info">
@@ -53,14 +53,13 @@
 
         <div id="formulario-datos" class="card-dark" style="display: none;">
             <button class="btn-volver" onclick="volverAServicios()">⬅ Cambiar servicio</button>
-            <h2 id="resumen-servicio" class="gold-text" style="margin-top:20px;"></h2>
+            <h2 id="resumen-servicio" class="gold-text" style="margin-top:20px; text-align: center;"></h2>
 
             <div class="form-group">
                 <label>Selecciona tu Barbero:</label>
                 <div id="contenedor-barberos-fotos" class="barberos-grid">
-                  </div>
-            <input type="hidden" id="barbero_id_seleccionado">
-           </div>
+                    </div>
+            </div>
 
             <div class="form-group">
                 <label>Tu Nombre:</label>
@@ -70,6 +69,11 @@
             <div class="form-group">
                 <label>Tu Correo:</label>
                 <input type="email" id="cliente_email" placeholder="ejemplo@correo.com">
+            </div>
+
+            <div class="form-group">
+                <label>Tu Celular:</label>
+                <input type="tel" id="cliente_telefono" placeholder="Ej: 3001234567">
             </div>
 
             <div class="form-group">
