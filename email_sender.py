@@ -5,7 +5,7 @@ from email.message import EmailMessage
 
 class EmailSender:
     def __init__(self):
-        # Render prioriza el panel de Environment
+        # Tomar variables de entorno o valores por defecto
         self.email = os.environ.get("EMAIL_USER", "blessedbarbershopenv@gmail.com")
         self.password = os.environ.get("EMAIL_PASSWORD", "szpmoziwisyyodav").strip()
 
@@ -19,29 +19,31 @@ class EmailSender:
         msg["From"] = self.email
         msg["To"] = correo_cliente
         
-        # Cuerpo del mensaje
         cuerpo = f"""
 Hola {nombre},
 
 ¡Tu cita ha sido agendada con éxito!
 
-📍 Lugar: Calle 38 sur 34-22 Envigado
 ✂️ Barbero: {profesional}
 📅 Fecha: {fecha}
 ⏰ Hora: {hora}
 
-Si necesitas cancelar o reprogramar, por favor contáctanos con anticipación.
 ¡Te esperamos!
 """
         msg.set_content(cuerpo)
 
         try:
-            # Usamos SSL directo en el puerto 465
+            # CAMBIO: Usamos SMTP estándar (587) en lugar de SSL directo
+            # Creamos un contexto de seguridad que ignora errores de validación de host si Render los da
             context = ssl.create_default_context()
-            # Timeout añadido para evitar que se quede colgado
-            with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context, timeout=15) as server:
+            
+            print(f"Intentando conectar a smtp.gmail.com por el puerto 587...")
+            
+            with smtplib.SMTP("smtp.gmail.com", 587, timeout=20) as server:
+                server.starttls(context=context) # Inicia la encriptación
                 server.login(self.email, self.password)
                 server.send_message(msg)
+                
             print(f"✅ Correo enviado con éxito a {correo_cliente}")
         except Exception as e:
             print(f"❌ Fallo al enviar correo: {str(e)}")
