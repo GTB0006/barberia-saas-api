@@ -13,10 +13,8 @@
         
         <input type="date" id="filtro-fecha" onchange="filtrarTabla()" style="padding: 10px; border-radius: 5px;">
         
-        <select id="filtro-barbero" onchange="filtrarTabla()" style="padding: 10px; border-radius: 5px;">
+       <select id="filtro-barbero" onchange="filtrarTabla()" style="padding: 10px; border-radius: 5px;">
             <option value="">Todos los Barberos</option>
-            <option value="Juan Camilo">Juan Camilo</option>
-            <option value="Juan Sebastian">Juan Sebastian</option>
         </select>
 
         <button onclick="limpiarFiltro()" style="padding: 10px; background: #333; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Limpiar</button>
@@ -49,9 +47,28 @@
                 document.getElementById('status').innerText = "Cargando citas...";
                 document.getElementById('tabla-admin').style.display = 'table';
                 await cargarDatos();
+                await cargarFiltroBarberos();
             } else {
                 alert("Incorrecto");
                 window.location.reload();
+            }
+        }
+
+        // Nueva función para que el filtro sea automático
+        async function cargarFiltroBarberos() {
+            const select = document.getElementById('filtro-barbero');
+            try {
+                const response = await fetch('/barberos/1');
+                const barberos = await response.json();
+                
+                barberos.forEach(b => {
+                    const option = document.createElement('option');
+                    option.value = b.nombre;
+                    option.text = b.nombre;
+                    select.appendChild(option);
+                });
+            } catch (e) {
+                console.error("Error cargando barberos para filtro:", e);
             }
         }
 
