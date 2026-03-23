@@ -212,34 +212,37 @@ def crear_reserva(
 
 
 
-        # 5. Envíos
-
+        # 5. Envíos (AQUÍ ES DONDE VAN LOS CAMBIOS)
         try:
+            # Tarea de Email: SOLO se agrega si el usuario escribió un correo
+            if cliente_email and "@" in cliente_email:
+                background_tasks.add_task(
+                    email_sender.enviar_confirmacion, 
+                    cliente_email, cliente_nombre, fecha, hora, profesional
+                )
+            else:
+                print(f"Reserva para {cliente_nombre} sin correo. No se enviará email.")
 
-            email_sender.enviar_confirmacion(cliente_email, cliente_nombre, fecha, hora, profesional)
+            # Tarea de Calendario: Se envía siempre 
+            # Si no hay correo, usamos uno genérico para que Google Calendar no de error
+            cal_email = cliente_email if (cliente_email and "@" in cliente_email) else "sin-correo@blessed.com"
+            background_tasks.add_task(
+                calendar_sender.crear_evento, 
+                cal_email, cliente_nombre, fecha, hora, profesional
+            )
 
         except Exception as e:
-
-            print(f"❌ Error email: {e}")
-
-
-
-        background_tasks.add_task(calendar_sender.crear_evento, cliente_email, cliente_nombre, fecha, hora, profesional)
-
-
+            print(f"❌ Error programando tareas de fondo: {e}")
 
         return {"mensaje": "¡Reserva creada con éxito!"}
 
-
-
+    except HTTPException as he:
+        # Re-lanzamos las excepciones controladas (como "horario cerrado")
+        raise he
     except Exception as e:
-
         print(f"ERROR: {str(e)}")
-
         raise HTTPException(status_code=500, detail=str(e))
-
     finally:
-
         conn.close()
 
 
