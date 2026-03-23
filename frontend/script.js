@@ -106,7 +106,13 @@ async function agendarCita() {
 
     if (!barberoIdSeleccionado) return alert("Selecciona un barbero.");
 
-    if (!nombre || !email || !telefono || !fecha || !hora) return alert("Completa todos los campos.");
+    if (!nombre || !telefono || !fecha || !hora) return alert("Completa todos los campos, el correo es opcional.");
+   
+    // VALIDACIÓN OPCIONAL: Solo si escribió algo en email, verificamos el @
+    if (email && !email.includes('@')) {
+        return alert("Si ingresas un correo, debe ser válido (incluir @).");
+    }
+    
 
 
 
