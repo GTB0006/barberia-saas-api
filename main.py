@@ -111,6 +111,33 @@ def listar_barberos(barberia_id: int):
         conn.close()
 
 
+# ======================================================
+# BUSCAR CLIENTE POR TELÉFONO (AUTOPREFILL)
+# ======================================================
+@app.get("/buscar_cliente/{telefono}")
+def buscar_cliente(telefono: str):
+    conn = get_connection()
+    try:
+        cursor = conn.cursor()
+        # Buscamos la última reserva exitosa de este número
+        cursor.execute("""
+            SELECT cliente_nombre, cliente_email 
+            FROM reservas 
+            WHERE cliente_telefono = %s 
+            ORDER BY id DESC 
+            LIMIT 1
+        """, (telefono,))
+        
+        resultado = cursor.fetchone()
+        if resultado:
+            return {
+                "encontrado": True,
+                "nombre": resultado[0],
+                "email": resultado[1] if resultado[1] else ""
+            }
+        return {"encontrado": False}
+    finally:
+        conn.close()
 
 # ======================================================
 
