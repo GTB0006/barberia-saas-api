@@ -89,6 +89,28 @@ function volverAServicios() {
 }
 
 
+async function buscarDatosCliente() {
+    const telefono = document.getElementById('cliente_telefono').value.trim();
+    
+    // Solo buscamos si tiene al menos 10 dígitos (estándar celular Colombia)
+    if (telefono.length >= 10) {
+        try {
+            const response = await fetch(`/buscar_cliente/${telefono}`);
+            const data = await response.json();
+            
+            if (data.encontrado) {
+                const campoNombre = document.getElementById('cliente_nombre');
+                const campoEmail = document.getElementById('cliente_email');
+                
+                // Solo auto-llenamos si los campos están vacíos para no sobreescribir al usuario
+                if (!campoNombre.value) campoNombre.value = data.nombre;
+                if (!campoEmail.value) campoEmail.value = data.email;
+            }
+        } catch (e) {
+            console.error("Error al recuperar datos del cliente:", e);
+        }
+    }
+}
 
 async function agendarCita() {
 
